@@ -35,4 +35,37 @@ class Plugin extends PluginBase
             ]
         ];
     }
+
+    public function registerListColumnTypes(): array
+    {
+        return [
+            'thumb' => [$this, 'renderThumbColumn'],
+        ];
+    }
+
+    public function renderThumbColumn($value, $column, $record)
+    {
+        $config = $column->config;
+
+        $width = $config['width'] ?? 50;
+        $height = $config['height'] ?? 50;
+        $options = $config['options'] ?? [];
+
+        if (isset($record->attachMany[$column->columnName])) {
+            $file = $value->first();
+        } elseif (isset($record->attachOne[$column->columnName])) {
+            $file = $value;
+        } else {
+            $file = '/media' . $value;
+        }
+
+        try {
+            $image = new Image($file);
+            $url = $image->resize($width, $height, $options);
+        } catch (\Exception $e) {
+            return null;
+        }
+
+        return sprintf('<img src="%s"/>', $url);
+    }
 }
