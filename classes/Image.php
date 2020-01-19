@@ -94,6 +94,13 @@ class Image
     {
         $path = urldecode(parse_url($url, PHP_URL_PATH));
         $path = str_start($path, DIRECTORY_SEPARATOR);
+        $extension = pathinfo($path, PATHINFO_EXTENSION);
+
+        if (!in_array($extension, File::$imageExtensions, true)) {
+            throw new \InvalidArgumentException(
+                sprintf('Path %s is not an image.', $path)
+            );
+        }
 
         $localFolders = [
             config('cms.themesPath', '/themes'),
