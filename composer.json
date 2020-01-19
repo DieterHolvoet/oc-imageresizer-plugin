@@ -1,0 +1,21 @@
+{
+    "name": "dieterholvoet/oc-imageresizer-plugin",
+    "type": "october-plugin",
+    "description": "Provides an easy way to resize images and cache the result.",
+    "keywords": [
+        "octobercms"
+    ],
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Dieter Holvoet",
+            "email": "dieter.holvoet@gmail.com",
+            "role": "Developer"
+        }
+    ],
+    "require": {
+        "php": ">=7.1",
+        "composer/installers": "~1.0"
+    },
+    "minimum-stability": "dev"
+}
