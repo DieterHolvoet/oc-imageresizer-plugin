@@ -38,12 +38,11 @@ class Image
         $thumbFilename = $this->getThumbFilename($width, $height, $options);
         $thumbPath = $this->file->getDiskPath($thumbFilename);
 
-        if (!$this->shouldCreateNewThumb($thumbPath)) {
-            return $this->thumbStorage->url($thumbPath);
-        }
-
         if ($this->thumbStorage->exists($thumbPath)) {
-            // Thumb is outdated
+            if (!$this->isThumbOutdated($thumbPath)) {
+                return $this->thumbStorage->url($thumbPath);
+            }
+
             $this->thumbStorage->delete($thumbPath);
         }
 
@@ -63,10 +62,9 @@ class Image
         return $this->thumbStorage->url($thumbPath);
     }
 
-    protected function shouldCreateNewThumb(string $thumbPath): bool
+    protected function isThumbOutdated(string $thumbPath): bool
     {
-        return !$this->thumbStorage->exists($thumbPath)
-            || $this->storage->getTimestamp($this->path) > $this->thumbStorage->getTimestamp($thumbPath);
+        return $this->storage->getTimestamp($this->path) > $this->thumbStorage->getTimestamp($thumbPath);
     }
 
     protected function getThumbFilename(?int $width = null, ?int $height = null, array $options = []): string
