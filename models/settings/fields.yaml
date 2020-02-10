@@ -1,0 +1,53 @@
+# ===================================
+#  Form Field Definitions
+# ===================================
+
+fields:
+    image_processor:
+        label: dieterholvoet.imageresizer::fields.image_processor.label
+        description: dieterholvoet.imageresizer::fields.image_processor.description
+        type: radio
+        span: left
+        options:
+            local:
+                - dieterholvoet.imageresizer::fields.image_processor.options.local.label
+                - dieterholvoet.imageresizer::fields.image_processor.options.local.description
+            imgix:
+                - dieterholvoet.imageresizer::fields.image_processor.options.imgix.label
+                - dieterholvoet.imageresizer::fields.image_processor.options.imgix.description
+    imgix_domain:
+        label: dieterholvoet.imageresizer::fields.imgix_domain.label
+        description: dieterholvoet.imageresizer::fields.imgix_domain.description
+        type: text
+        span: right
+        trigger:
+            action: show
+            field: image_processor
+            condition: value[imgix]
+    imgix_use_https:
+        label: dieterholvoet.imageresizer::fields.imgix_use_https.label
+        description: dieterholvoet.imageresizer::fields.imgix_use_https.description
+        type: checkbox
+        span: right
+        trigger:
+            action: show
+            field: image_processor
+            condition: value[imgix]
+    imgix_prefix:
+        label: dieterholvoet.imageresizer::fields.imgix_prefix.label
+        description: dieterholvoet.imageresizer::fields.imgix_prefix.description
+        type: text
+        span: right
+        trigger:
+            action: show
+            field: image_processor
+            condition: value[imgix]
+    imgix_secure_url_token:
+        label: dieterholvoet.imageresizer::fields.imgix_secure_url_token.label
+        description: dieterholvoet.imageresizer::fields.imgix_secure_url_token.description
+        type: text
+        span: right
+        trigger:
+            action: show
+            field: image_processor
+            condition: value[imgix]

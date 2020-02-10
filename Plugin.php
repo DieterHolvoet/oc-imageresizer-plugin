@@ -3,7 +3,10 @@
 namespace DieterHolvoet\ImageResizer;
 
 use DieterHolvoet\ImageResizer\Classes\Image;
+use DieterHolvoet\ImageResizer\Models\Settings;
+use Illuminate\Support\Facades\Lang;
 use System\Classes\PluginBase;
+use System\Classes\SettingsManager;
 
 class Plugin extends PluginBase
 {
@@ -21,18 +24,52 @@ class Plugin extends PluginBase
     {
         return [
             'filters' => [
-                'resize' => static function (?string $path, ?int $width = null, ?int $height = null, array $options = []): ?string {
+                'image' => static function (?string $path, ?int $width = null, ?int $height = null, ?int $quality = null): ?string {
                     if (!$path) {
                         return null;
                     }
 
+                    $settings = Settings::instance();
+                    $parameters = $settings->getParameters()
+                        ->setWidth($width)
+                        ->setHeight($height)
+                        ->setQuality($quality);
+
                     try {
-                        return (new Image($path))->resize($width, $height, $options);
+                        $image = Image::fromPath($path);
+                        return $settings->getProcessor()->getUrl($image, $parameters);
                     } catch (\Exception $e) {
                         return null;
                     }
                 }
             ]
+        ];
+    }
+
+    public function registerPermissions()
+    {
+        return [
+            'dieterholvoet.imageresizer.access_settings' => [
+                'label' => Lang::get('dieterholvoet.imageresizer::app.permission.access_settings'),
+                'tab' => Lang::get('dieterholvoet.imageresizer::app.name'),
+                'order' => 100,
+            ],
+        ];
+    }
+
+    public function registerSettings()
+    {
+        return [
+            'location' => [
+                'label'       => Lang::get('dieterholvoet.imageresizer::app.name'),
+                'description' => Lang::get('dieterholvoet.imageresizer::app.settings'),
+                'category'    => SettingsManager::CATEGORY_CMS,
+                'icon'        => 'icon-picture-o',
+                'class'       => Settings::class,
+                'order'       => 500,
+                'keywords'    => 'settings imageresizer image imgix',
+                'permissions' => ['dieterholvoet.imageresizer.access_settings'],
+            ],
         ];
     }
 
@@ -46,10 +83,14 @@ class Plugin extends PluginBase
     public function renderThumbColumn($value, $column, $record)
     {
         $config = $column->config;
+        $settings = Settings::instance();
+        $parameters = $settings->getParameters()
+            ->setWidth($config['width'] ?? 50)
+            ->setHeight($config['height'] ?? 50);
 
-        $width = $config['width'] ?? 50;
-        $height = $config['height'] ?? 50;
-        $options = $config['options'] ?? [];
+        if (isset($config['quality'])) {
+            $parameters->setQuality($config['quality']);
+        }
 
         if (isset($record->attachMany[$column->columnName])) {
             $file = $value->first();
@@ -60,8 +101,8 @@ class Plugin extends PluginBase
         }
 
         try {
-            $image = new Image($file);
-            $url = $image->resize($width, $height, $options);
+            $image = Image::fromPath($file);
+            $url = $settings->getProcessor()->getUrl($image, $parameters);
         } catch (\Exception $e) {
             return null;
         }
