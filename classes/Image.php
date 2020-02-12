@@ -7,10 +7,11 @@ use League\Flysystem\Adapter\Local;
 use League\Flysystem\Filesystem as FlysystemFilesystem;
 use Illuminate\Filesystem\FilesystemAdapter;
 use Illuminate\Support\Facades\Storage;
-use October\Rain\Database\Attach\File;
 
 class Image implements ImageInterface
 {
+    protected const EXTENSIONS = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'svg'];
+
     /** @var Filesystem */
     protected $storage;
     /** @var string */
@@ -38,7 +39,7 @@ class Image implements ImageInterface
         $path = str_start($path, DIRECTORY_SEPARATOR);
         $extension = pathinfo($path, PATHINFO_EXTENSION);
 
-        if (!in_array($extension, File::$imageExtensions, true)) {
+        if (!in_array($extension, self::EXTENSIONS, true)) {
             throw new \InvalidArgumentException(
                 sprintf('Path %s is not an image.', $path)
             );
